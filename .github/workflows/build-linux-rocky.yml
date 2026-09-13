@@ -66,7 +66,15 @@ jobs:
             nasm \
             yasm \
             libtool-ltdl-devel \
-            gettext-devel
+            gettext-devel \
+            libXtst-devel \
+            libXrender-devel \
+            libXfixes-devel \
+            libXcomposite-devel \
+            libXdamage-devel \
+            libxkbcommon-devel \
+            libxkbcommon-x11-devel \
+            dbus-devel
 
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
