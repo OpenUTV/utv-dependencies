@@ -34,6 +34,14 @@ jobs:
             unzip \
             zip \
             pkg-config \
+            autoconf \
+            autoconf-archive \
+            automake \
+            libtool \
+            m4 \
+            bison \
+            flex \
+            gperf \
             libx11-dev \
             libxft-dev \
             libxext-dev \

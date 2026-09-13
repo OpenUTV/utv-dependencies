@@ -56,7 +56,13 @@ jobs:
             libvdpau-devel \
             perl-IPC-Cmd \
             perl-FindBin \
-            rpm-build
+            rpm-build \
+            autoconf-archive \
+            libtool \
+            m4 \
+            bison \
+            flex \
+            gperf
 
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
