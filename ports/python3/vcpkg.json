@@ -1,7 +1,7 @@
 {
   "name": "python3",
-  "version-string": "3.14.5",
-  "description": "The Python programming language (Custom 3.14.5 Build)",
+  "version-string": "3.14.7",
+  "description": "The Python programming language (Custom 3.14.7 Build)",
   "dependencies": [
     "zlib",
     "openssl",

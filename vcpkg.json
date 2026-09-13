@@ -1,6 +1,6 @@
 {
   "name": "openutv-dependencies",
-  "version-string": "26.1.0",
+  "version-string": "26.2.0",
   "dependencies": [
     "python3",
     "vcpkg-get-python",
@@ -122,19 +122,19 @@
   "overrides": [
     {
       "name": "boost",
-      "version-string": "1.91.0"
+      "version-string": "1.92.0"
     },
     {
       "name": "ffmpeg",
-      "version-string": "8.1.1"
+      "version-string": "9.0.1"
     },
     {
       "name": "openexr",
-      "version-string": "3.4.11"
+      "version-string": "3.4.15"
     },
     {
       "name": "openimageio",
-      "version-string": "3.1.12.0"
+      "version-string": "3.1.17.0"
     },
     {
       "name": "opencolorio",
