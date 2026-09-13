@@ -1,0 +1,135 @@
+name: Linux (Ubuntu) - Build Dependencies (vcpkg)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-ubuntu:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Install System Prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            git \
+            curl \
+            ninja-build \
+            tar \
+            unzip \
+            zip \
+            pkg-config \
+            libx11-dev \
+            libxft-dev \
+            libxext-dev \
+            libgl1-mesa-dev \
+            libglu1-mesa-dev \
+            libxcursor-dev \
+            libxi-dev \
+            libxinerama-dev \
+            libxrandr-dev \
+            libfontconfig1-dev \
+            libasound2-dev \
+            libpulse-dev \
+            libudev-dev \
+            libva-dev \
+            libvdpau-dev
+
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgDirectory: '${{ runner.workspace }}/vcpkg'
+          vcpkgGitCommitId: '759f4cca281639f2a0541741c80372012c92477e'
+
+      - name: Restore vcpkg downloads
+        id: restore-downloads
+        uses: actions/cache/restore@v5
+        with:
+          path: ${{ runner.workspace }}/vcpkg/downloads
+          key: vcpkg-downloads-linux-${{ hashFiles('vcpkg.json') }}
+          restore-keys: |
+            vcpkg-downloads-linux-
+
+      - name: Restore vcpkg binary cache
+        id: restore-binary-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: ${{ runner.workspace }}/vcpkg_cache
+          key: vcpkg-binaries-linux-${{ hashFiles('vcpkg.json') }}
+          restore-keys: |
+            vcpkg-binaries-linux-
+
+      - name: Warm up vcpkg downloads
+        shell: bash
+        run: |
+          "${{ runner.workspace }}/vcpkg/vcpkg" install --triplet x64-linux --only-downloads --overlay-ports=ports --x-install-root="${{ runner.workspace }}/vcpkg/installed" || true
+
+      - name: Save vcpkg downloads
+        if: always()
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ runner.workspace }}/vcpkg/downloads
+          key: vcpkg-downloads-linux-${{ hashFiles('vcpkg.json') }}
+
+      - name: Install All Dependencies (Manifest Mode)
+        shell: bash
+        env:
+          VCPKG_BINARY_SOURCES: "clear;files,${{ runner.workspace }}/vcpkg_cache,readwrite"
+        run: |
+          "${{ runner.workspace }}/vcpkg/vcpkg" install \
+            --triplet x64-linux \
+            --x-install-root="${{ runner.workspace }}/vcpkg/installed" \
+            --overlay-ports=ports \
+            --clean-after-build
+
+      - name: Save Binaries Cache
+        if: always()
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ runner.workspace }}/vcpkg_cache
+          key: vcpkg-binaries-linux-${{ hashFiles('vcpkg.json') }}-${{ github.run_id }}
+
+      - name: Configure Environment
+        shell: bash
+        run: |
+          PYTHON_EXEC="${{ runner.workspace }}/vcpkg/installed/x64-linux/bin/python3"
+          echo "VCPKG_PYTHON=$PYTHON_EXEC" >> $GITHUB_ENV
+          echo "Python3_EXECUTABLE=$PYTHON_EXEC" >> $GITHUB_ENV
+          echo "Python3_ROOT_DIR=$(dirname $(dirname $PYTHON_EXEC))" >> $GITHUB_ENV
+          echo "$(dirname $PYTHON_EXEC)" >> $GITHUB_PATH
+
+      - name: Prepare Binary Archive for CPack
+        run: |
+          mkdir -p exported_deps
+          # Move the installed tree to the location expected by CMakeLists.txt
+          mv "${{ runner.workspace }}/vcpkg/installed/x64-linux" "exported_deps/utv-deps-linux-x64"
+
+      - name: Package DEB Installer (CPack)
+        run: |
+          mkdir build
+          cd build
+          cmake -G Ninja ..
+          cpack -G DEB -C Release
+
+      - name: Upload to Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CMAKE_VER=$(grep -i "project(OpenUTVDependencies VERSION" CMakeLists.txt | sed -E 's/.*VERSION ([0-9\.]+).*/\1/')
+          VERSION="v${CMAKE_VER}"
+          gh release create $VERSION build/*.deb -t "Linux x64 Dependencies $VERSION" -n "Source-driven dependency build ($VERSION)" || gh release upload $VERSION build/*.deb --clobber

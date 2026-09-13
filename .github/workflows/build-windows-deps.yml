@@ -1,0 +1,124 @@
+name: Windows - Build Dependencies (vcpkg)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-windows:
+    runs-on: windows-2025-vs2026
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgDirectory: '${{ runner.workspace }}/vcpkg'
+          vcpkgGitCommitId: '759f4cca281639f2a0541741c80372012c92477e'
+
+      - name: Restore vcpkg downloads
+        id: restore-downloads
+        uses: actions/cache/restore@v5
+        with:
+          path: ${{ runner.workspace }}/vcpkg/downloads
+          key: vcpkg-downloads-${{ hashFiles('vcpkg.json') }}
+          restore-keys: |
+            vcpkg-downloads-
+
+      - name: Restore vcpkg binary cache
+        id: restore-binary-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: ${{ runner.workspace }}/vcpkg_cache
+          key: vcpkg-binaries-${{ hashFiles('vcpkg.json') }}
+          restore-keys: |
+            vcpkg-binaries-
+
+      - name: Warm up vcpkg downloads
+        shell: bash
+        run: |
+          "${{ runner.workspace }}/vcpkg/vcpkg" install --triplet x64-windows --only-downloads --overlay-ports=ports --x-install-root="${{ runner.workspace }}/vcpkg/installed" || true
+
+      - name: Save vcpkg downloads
+        if: always()
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ runner.workspace }}/vcpkg/downloads
+          key: vcpkg-downloads-${{ hashFiles('vcpkg.json') }}
+
+      - name: Check vcpkg Version
+        shell: bash
+        run: |
+          "${{ runner.workspace }}/vcpkg/vcpkg" version
+
+      - name: Force Release Build Only
+        run: |
+          Add-Content -Path "${{ runner.workspace }}/vcpkg/triplets/x64-windows.cmake" -Value "set(VCPKG_BUILD_TYPE release)" -Encoding ascii
+
+      - name: Install All Dependencies (Manifest Mode)
+        shell: bash
+        env:
+          VCPKG_BINARY_SOURCES: "clear;files,${{ runner.workspace }}/vcpkg_cache,readwrite"
+        run: |
+          "${{ runner.workspace }}/vcpkg/vcpkg" install \
+            --triplet x64-windows \
+            --x-install-root="${{ runner.workspace }}/vcpkg/installed" \
+            --overlay-ports=ports \
+            --clean-after-build
+
+      - name: Configure Environment
+        shell: bash
+        run: |
+          # Identify the installed Python and set env vars for the manifest run
+          if [ -f "${{ runner.workspace }}/vcpkg/installed/x64-windows/tools/python3/python.exe" ]; then
+            PYTHON_EXEC="${{ runner.workspace }}/vcpkg/installed/x64-windows/tools/python3/python.exe"
+          else
+            PYTHON_EXEC="${{ runner.workspace }}/vcpkg/installed/x64-windows/bin/python.exe"
+          fi
+          
+          echo "VCPKG_PYTHON=$PYTHON_EXEC" >> $GITHUB_ENV
+          echo "Python3_EXECUTABLE=$PYTHON_EXEC" >> $GITHUB_ENV
+          echo "Python3_ROOT_DIR=$(dirname "$PYTHON_EXEC")" >> $GITHUB_ENV
+          echo "$(dirname "$PYTHON_EXEC")" >> $GITHUB_PATH
+
+      - name: Save Binaries Cache
+        if: always()
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ runner.workspace }}/vcpkg_cache
+          key: vcpkg-binaries-${{ hashFiles('vcpkg.json') }}-${{ github.run_id }}
+
+      - name: Prepare Binary Archive for CPack
+        shell: bash
+        run: |
+          mkdir -p exported_deps
+          # Move the installed tree to the location expected by CMakeLists.txt
+          mv "${{ runner.workspace }}/vcpkg/installed/x64-windows" "exported_deps/utv-deps-windows-x64"
+
+      - name: Package MSI Installer (CPack WiX)
+        shell: bash
+        run: |
+          mkdir build
+          cd build
+          cmake -G "Visual Studio 18 2026" ..
+          cpack -G WIX -C Release --debug --verbose
+
+      - name: Upload to Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CMAKE_VER=$(grep -i "project(OpenUTVDependencies VERSION" CMakeLists.txt | sed -E 's/.*VERSION ([0-9\.]+).*/\1/')
+          VERSION="v${CMAKE_VER}"
+          gh release create $VERSION build/OpenUTVDeps-${CMAKE_VER}-win64.msi -t "Windows x64 Dependencies $VERSION" -n "Source-driven dependency build ($VERSION)" || gh release upload $VERSION build/OpenUTVDeps-${CMAKE_VER}-win64.msi --clobber

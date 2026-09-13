@@ -1,0 +1,176 @@
+{
+  "name": "openutv-dependencies",
+  "version-string": "26.1.0",
+  "dependencies": [
+    "python3",
+    "vcpkg-get-python",
+    "bdwgc",
+    "boost",
+    "dav1d",
+    "doctest",
+    "expat",
+    {
+      "name": "ffmpeg",
+      "features": [
+        "ffmpeg",
+        "ffprobe",
+        "ffplay",
+        "avcodec",
+        "avformat",
+        "avdevice",
+        "avfilter",
+        "swresample",
+        "swscale"
+      ]
+    },
+    {
+      "name": "freetype",
+      "features": [
+        "brotli",
+        "png",
+        "subpixel-rendering",
+        "bzip2",
+        "zlib"
+      ]
+    },
+    "glew",
+    "imath",
+    "libatomic-ops",
+    {
+      "name": "libjpeg-turbo",
+      "features": [
+        "tools"
+      ]
+    },
+    {
+      "name": "libpng",
+      "features": [
+        "tools"
+      ]
+    },
+    {
+      "name": "libraw",
+      "features": [
+        "openmp"
+      ]
+    },
+    "libwebp",
+    "nanobind",
+    "pybind11",
+    "opencv",
+    {
+      "name": "opencolorio",
+      "features": [
+        "tools"
+      ]
+    },
+    {
+      "name": "openexr",
+      "features": [
+        "tools"
+      ]
+    },
+    {
+      "name": "openimageio",
+      "features": [
+        "ffmpeg",
+        "freetype",
+        "gif",
+        "libraw",
+        "opencolorio",
+        "opencv",
+        "openjpeg",
+        "pybind11",
+        "tools",
+        "webp"
+      ]
+    },
+    "openjpeg",
+    {
+      "name": "openjph",
+      "features": [
+        "tools"
+      ]
+    },
+    {
+      "name": "openssl",
+      "features": [
+        "tools"
+      ]
+    },
+    {
+      "name": "pcre2",
+      "features": [
+        "jit"
+      ]
+    },
+    "spdlog",
+    {
+      "name": "tiff",
+      "features": [
+        "jpeg",
+        "lzma",
+        "zip",
+        "webp",
+        "zstd",
+        "tools"
+      ]
+    },
+    "yaml-cpp",
+    "zlib"
+  ],
+  "overrides": [
+    {
+      "name": "boost",
+      "version-string": "1.91.0"
+    },
+    {
+      "name": "ffmpeg",
+      "version-string": "8.1.1"
+    },
+    {
+      "name": "openexr",
+      "version-string": "3.4.11"
+    },
+    {
+      "name": "openimageio",
+      "version-string": "3.1.12.0"
+    },
+    {
+      "name": "opencolorio",
+      "version-string": "2.5.2"
+    },
+    {
+      "name": "openjph",
+      "version-string": "0.27.2"
+    },
+    {
+      "name": "imath",
+      "version-string": "3.2.2"
+    },
+    {
+      "name": "openssl",
+      "version-string": "3.6.2"
+    },
+    {
+      "name": "dav1d",
+      "version-string": "1.5.3"
+    },
+    {
+      "name": "spdlog",
+      "version-string": "1.17.0"
+    },
+    {
+      "name": "nanobind",
+      "version-string": "2.12.0"
+    },
+    {
+      "name": "opencv",
+      "version-string": "4.12.0"
+    },
+    {
+      "name": "pybind11",
+      "version-string": "3.0.1"
+    }
+  ]
+}

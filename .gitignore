@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+.env
+
+# Build & Dependencies
+build/
+bin/
+lib/
+include/
+exported_deps/
+vcpkg/
+vcpkg_installed/
+.vcpkg/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CPackConfig.cmake
+CPackSourceConfig.cmake
+_CPack_Packages/
+
+# Editors & OS
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
