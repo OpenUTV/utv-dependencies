@@ -44,6 +44,8 @@ jobs:
             gperf \
             nasm \
             yasm \
+            libltdl-dev \
+            autopoint \
             libx11-dev \
             libxft-dev \
             libxext-dev \

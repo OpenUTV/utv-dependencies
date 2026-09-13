@@ -64,7 +64,9 @@ jobs:
             flex \
             gperf \
             nasm \
-            yasm
+            yasm \
+            libtool-ltdl-devel \
+            gettext-devel
 
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
