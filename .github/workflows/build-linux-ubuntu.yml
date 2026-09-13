@@ -53,6 +53,14 @@ jobs:
             libglu1-mesa-dev \
             libxcursor-dev \
             libxi-dev \
+            libxtst-dev \
+            libxrender-dev \
+            libxfixes-dev \
+            libxcomposite-dev \
+            libxdamage-dev \
+            libxkbcommon-dev \
+            libxkbcommon-x11-dev \
+            libdbus-1-dev \
             libxinerama-dev \
             libxrandr-dev \
             libfontconfig1-dev \
