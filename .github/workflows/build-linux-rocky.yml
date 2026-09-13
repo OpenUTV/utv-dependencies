@@ -55,7 +55,8 @@ jobs:
             libva-devel \
             libvdpau-devel \
             perl-IPC-Cmd \
-            perl-FindBin
+            perl-FindBin \
+            rpm-build
 
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
@@ -92,6 +93,10 @@ jobs:
         with:
           path: ${{ runner.workspace }}/vcpkg/downloads
           key: vcpkg-downloads-rocky-${{ hashFiles('vcpkg.json') }}
+
+      - name: Force Release Build Only
+        run: |
+          echo "set(VCPKG_BUILD_TYPE release)" >> "${{ runner.workspace }}/vcpkg/triplets/x64-linux.cmake"
 
       - name: Install All Dependencies (Manifest Mode)
         shell: bash

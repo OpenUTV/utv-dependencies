@@ -45,25 +45,43 @@ if(WIN32)
 ")
     set(CPACK_WIX_EXTRA_SOURCES "${CMAKE_BINARY_DIR}/extra.wxs")
 elseif(UNIX AND NOT APPLE)
+    set(CPACK_SET_DESTDIR ON)
+    set(CPACK_PACKAGING_INSTALL_PREFIX "/usr/local/openutv-deps")
+
     # Check if we are on Debian/Ubuntu or RHEL/Rocky
     if(EXISTS "/etc/debian_version")
         set(CPACK_GENERATOR "DEB")
         set(CPACK_DEBIAN_PACKAGE_MAINTAINER "OpenUTV Team")
         set(CPACK_DEBIAN_PACKAGE_SECTION "devel")
         set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
+        set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
     else()
         set(CPACK_GENERATOR "RPM")
         set(CPACK_RPM_PACKAGE_LICENSE "Multiple")
         set(CPACK_RPM_PACKAGE_GROUP "Development/Libraries")
+        set(CPACK_RPM_PACKAGE_ARCHITECTURE "x86_64")
+        set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION
+            "/etc"
+            "/etc/ld.so.conf.d"
+            "/etc/profile.d"
+            "/usr/local"
+        )
     endif()
-    
-    # Set the install prefix for Linux packages to /usr/local/openutv-deps
-    set(CPACK_PACKAGING_INSTALL_PREFIX "/usr/local/openutv-deps")
 
     # Create a ld.so.conf.d file to make libraries globally discoverable
     file(WRITE ${CMAKE_BINARY_DIR}/openutv-deps.conf "${CPACK_PACKAGING_INSTALL_PREFIX}/lib\n")
     install(FILES ${CMAKE_BINARY_DIR}/openutv-deps.conf DESTINATION /etc/ld.so.conf.d COMPONENT deps)
-    
+
+    # Create environment profile to append bin to PATH and set OPENUTV_DEPS_ROOT (zero-config)
+    file(WRITE ${CMAKE_BINARY_DIR}/openutv-deps.sh
+        "export OPENUTV_DEPS_ROOT=\"${CPACK_PACKAGING_INSTALL_PREFIX}\"\n"
+        "case \":\$PATH:\" in\n"
+        "  *:${CPACK_PACKAGING_INSTALL_PREFIX}/bin:*);;\n"
+        "  *) export PATH=\"\$PATH:${CPACK_PACKAGING_INSTALL_PREFIX}/bin\";;\n"
+        "esac\n"
+    )
+    install(FILES ${CMAKE_BINARY_DIR}/openutv-deps.sh DESTINATION /etc/profile.d COMPONENT deps)
+
     # Run ldconfig after installation/removal
     set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/scripts/postinst;${CMAKE_CURRENT_SOURCE_DIR}/scripts/postrm")
     set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/scripts/postinst")

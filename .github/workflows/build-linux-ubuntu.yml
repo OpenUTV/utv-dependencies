@@ -86,6 +86,10 @@ jobs:
           path: ${{ runner.workspace }}/vcpkg/downloads
           key: vcpkg-downloads-linux-${{ hashFiles('vcpkg.json') }}
 
+      - name: Force Release Build Only
+        run: |
+          echo "set(VCPKG_BUILD_TYPE release)" >> "${{ runner.workspace }}/vcpkg/triplets/x64-linux.cmake"
+
       - name: Install All Dependencies (Manifest Mode)
         shell: bash
         env:
