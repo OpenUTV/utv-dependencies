@@ -62,7 +62,9 @@ jobs:
             m4 \
             bison \
             flex \
-            gperf
+            gperf \
+            nasm \
+            yasm
 
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
