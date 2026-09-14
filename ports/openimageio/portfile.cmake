@@ -66,13 +66,33 @@ if("pybind11" IN_LIST FEATURES)
         list(APPEND FEATURE_OPTIONS "-DPython3_INCLUDE_DIR=${CURRENT_INSTALLED_DIR}/include/python3.14")
         list(APPEND FEATURE_OPTIONS "-DPython3_LIBRARY=${CURRENT_INSTALLED_DIR}/lib/python314.lib")
     else()
-        find_program(PYTHON3 NAMES python3.14 python3 PATHS "${CURRENT_INSTALLED_DIR}/tools/python3" "${CURRENT_INSTALLED_DIR}/bin" NO_DEFAULT_PATH)
+        find_program(PYTHON3 NAMES python3.14 python3
+            PATHS
+                "${CURRENT_INSTALLED_DIR}/tools/python3/bin"
+                "${CURRENT_INSTALLED_DIR}/tools/python3"
+                "${CURRENT_INSTALLED_DIR}/bin"
+            NO_DEFAULT_PATH
+        )
         if(NOT PYTHON3)
-            find_program(PYTHON3 NAMES python3)
+            file(GLOB_RECURSE CANDIDATE_PYTHONS
+                "${CURRENT_INSTALLED_DIR}/tools/python3/bin/python3*"
+                "${CURRENT_INSTALLED_DIR}/bin/python3*"
+                "${CURRENT_INSTALLED_DIR}/tools/python3/python3*"
+            )
+            list(FILTER CANDIDATE_PYTHONS EXCLUDE REGEX "config|include|share|lib|pkgconfig")
+            if(CANDIDATE_PYTHONS)
+                list(GET CANDIDATE_PYTHONS 0 PYTHON3)
+            endif()
         endif()
-        list(APPEND FEATURE_OPTIONS "-DPython3_EXECUTABLE=${PYTHON3}")
+
+        if(PYTHON3)
+            list(APPEND FEATURE_OPTIONS "-DPython3_EXECUTABLE=${PYTHON3}")
+        endif()
         list(APPEND FEATURE_OPTIONS "-DPython3_ROOT_DIR=${CURRENT_INSTALLED_DIR}")
         list(APPEND FEATURE_OPTIONS "-DPython3_INCLUDE_DIR=${CURRENT_INSTALLED_DIR}/include/python3.14")
+        list(APPEND FEATURE_OPTIONS "-DPython3_FIND_STRATEGY=LOCATION")
+        list(APPEND FEATURE_OPTIONS "-DPython3_FIND_REGISTRY=NEVER")
+        list(APPEND FEATURE_OPTIONS "-DPython3_FIND_FRAMEWORK=NEVER")
         if(EXISTS "${CURRENT_INSTALLED_DIR}/lib/libpython3.14.so")
             list(APPEND FEATURE_OPTIONS "-DPython3_LIBRARY=${CURRENT_INSTALLED_DIR}/lib/libpython3.14.so")
         elseif(EXISTS "${CURRENT_INSTALLED_DIR}/lib/libpython3.so")

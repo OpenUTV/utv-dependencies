@@ -76,11 +76,16 @@ else()
     vcpkg_install_make()
     vcpkg_fixup_pkgconfig()
 
-    # Provide tools/python3 layout for vcpkg_get_vcpkg_installed_python
+    # Provide tools/python3 layout for consumers and FindPython3
     file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/tools/python3")
-    if(EXISTS "${CURRENT_PACKAGES_DIR}/bin/python3")
-        file(CREATE_LINK "${CURRENT_PACKAGES_DIR}/bin/python3" "${CURRENT_PACKAGES_DIR}/tools/python3/python3" COPY_ON_ERROR SYMBOLIC)
-    endif()
+    file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/tools/python3/bin")
+    file(GLOB PYTHON_EXECS "${CURRENT_PACKAGES_DIR}/bin/python3*")
+    foreach(PY_EXEC ${PYTHON_EXECS})
+        if(NOT IS_DIRECTORY "${PY_EXEC}")
+            file(COPY "${PY_EXEC}" DESTINATION "${CURRENT_PACKAGES_DIR}/tools/python3")
+            file(COPY "${PY_EXEC}" DESTINATION "${CURRENT_PACKAGES_DIR}/tools/python3/bin")
+        endif()
+    endforeach()
 endif()
 
 file(INSTALL "${SOURCE_PATH}/LICENSE" DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}" RENAME copyright)
