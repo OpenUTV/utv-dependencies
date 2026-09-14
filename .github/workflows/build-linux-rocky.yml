@@ -70,10 +70,7 @@ jobs:
             systemd-devel \
             libva-devel \
             libvdpau-devel \
-            perl-IPC-Cmd \
-            perl-FindBin \
-            perl-Time-Piece \
-            perl-Digest-SHA \
+            perl-core \
             libXtst-devel \
             libXrender-devel \
             libXfixes-devel \
