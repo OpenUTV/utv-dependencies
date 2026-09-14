@@ -72,6 +72,8 @@ jobs:
             libvdpau-devel \
             perl-IPC-Cmd \
             perl-FindBin \
+            perl-Time-Piece \
+            perl-Digest-SHA \
             libXtst-devel \
             libXrender-devel \
             libXfixes-devel \
