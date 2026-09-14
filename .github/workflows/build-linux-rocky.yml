@@ -33,10 +33,9 @@ jobs:
           dnf config-manager --set-enabled crb
           dnf groupinstall -y "Development Tools"
           (dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo || true)
-          dnf install -y \
+          dnf install -y --allowerasing \
             cmake \
             git \
-            curl \
             ninja-build \
             tar \
             unzip \
