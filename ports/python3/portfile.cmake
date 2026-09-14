@@ -43,6 +43,20 @@ if(VCPKG_TARGET_IS_WINDOWS)
     file(INSTALL "${SOURCE_PATH}/PCbuild/amd64/python314.lib" DESTINATION "${CURRENT_PACKAGES_DIR}/lib")
     file(INSTALL "${SOURCE_PATH}/PCbuild/amd64/python314.lib" DESTINATION "${CURRENT_PACKAGES_DIR}/lib" RENAME "python3.lib")
 
+    # Install extension modules (.pyd) and supporting runtime DLLs
+    file(GLOB PYD_FILES "${SOURCE_PATH}/PCbuild/amd64/*.pyd")
+    if(PYD_FILES)
+        file(INSTALL ${PYD_FILES} DESTINATION "${CURRENT_PACKAGES_DIR}/tools/python3/DLLs")
+        file(INSTALL ${PYD_FILES} DESTINATION "${CURRENT_PACKAGES_DIR}/tools/python3")
+        file(INSTALL ${PYD_FILES} DESTINATION "${CURRENT_PACKAGES_DIR}/bin")
+    endif()
+    file(GLOB EXT_DLLS "${SOURCE_PATH}/PCbuild/amd64/sqlite3.dll" "${SOURCE_PATH}/PCbuild/amd64/lib*.dll")
+    if(EXT_DLLS)
+        file(INSTALL ${EXT_DLLS} DESTINATION "${CURRENT_PACKAGES_DIR}/tools/python3/DLLs")
+        file(INSTALL ${EXT_DLLS} DESTINATION "${CURRENT_PACKAGES_DIR}/tools/python3")
+        file(INSTALL ${EXT_DLLS} DESTINATION "${CURRENT_PACKAGES_DIR}/bin")
+    endif()
+
     # Make tools/python3 a complete Python environment for Windows FindPython3
     file(INSTALL "${SOURCE_PATH}/PCbuild/amd64/python314.lib" DESTINATION "${CURRENT_PACKAGES_DIR}/tools/python3/libs")
     file(INSTALL "${SOURCE_PATH}/PCbuild/amd64/python314.lib" DESTINATION "${CURRENT_PACKAGES_DIR}/tools/python3/libs" RENAME "python3.lib")
