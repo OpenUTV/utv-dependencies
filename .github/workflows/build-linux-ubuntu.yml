@@ -74,7 +74,7 @@ jobs:
         uses: lukka/run-vcpkg@v11
         with:
           vcpkgDirectory: '${{ runner.workspace }}/vcpkg'
-          vcpkgGitCommitId: '759f4cca281639f2a0541741c80372012c92477e'
+          vcpkgGitCommitId: 'a1cae005c39be7b18ba319fced856b68d7276271'
 
       - name: Restore vcpkg downloads
         id: restore-downloads
