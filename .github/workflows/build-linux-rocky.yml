@@ -79,6 +79,9 @@ jobs:
             libxkbcommon-devel \
             libxkbcommon-x11-devel \
             dbus-devel
+          # Rocky 9 ships with autoconf 2.69; certain vcpkg ports require autoconf >= 2.70
+          curl -fsSL https://ftp.gnu.org/gnu/autoconf/autoconf-2.72.tar.gz | tar -xz
+          cd autoconf-2.72 && ./configure --prefix=/usr && make -j$(nproc) && make install && cd .. && rm -rf autoconf-2.72
 
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
