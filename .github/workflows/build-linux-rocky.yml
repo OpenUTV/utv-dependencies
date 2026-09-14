@@ -20,7 +20,9 @@ jobs:
     container: rockylinux:9
     steps:
       - name: Install Git and Sudo
-        run: dnf install -y git sudo
+        run: |
+          dnf install -y git sudo
+          git config --global --add safe.directory "*"
 
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -30,6 +32,7 @@ jobs:
           dnf install -y epel-release
           dnf config-manager --set-enabled crb
           dnf groupinstall -y "Development Tools"
+          (dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo || true)
           dnf install -y \
             cmake \
             git \
@@ -39,6 +42,20 @@ jobs:
             unzip \
             zip \
             pkgconfig \
+            gh \
+            autoconf \
+            automake \
+            autoconf-archive \
+            libtool \
+            m4 \
+            bison \
+            flex \
+            gperf \
+            nasm \
+            yasm \
+            libtool-ltdl-devel \
+            gettext-devel \
+            rpm-build \
             libX11-devel \
             libXft-devel \
             libXext-devel \
@@ -56,17 +73,6 @@ jobs:
             libvdpau-devel \
             perl-IPC-Cmd \
             perl-FindBin \
-            rpm-build \
-            autoconf-archive \
-            libtool \
-            m4 \
-            bison \
-            flex \
-            gperf \
-            nasm \
-            yasm \
-            libtool-ltdl-devel \
-            gettext-devel \
             libXtst-devel \
             libXrender-devel \
             libXfixes-devel \
@@ -160,8 +166,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # gh is not installed in the container by default
-          dnf install -y gh
           CMAKE_VER=$(grep -i "project(OpenUTVDependencies VERSION" CMakeLists.txt | sed -E 's/.*VERSION ([0-9\.]+).*/\1/')
           VERSION="v${CMAKE_VER}"
           gh release create $VERSION build/*.rpm -t "Linux x64 Dependencies $VERSION" -n "Source-driven dependency build ($VERSION)" || gh release upload $VERSION build/*.rpm --clobber
