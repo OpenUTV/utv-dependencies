@@ -54,6 +54,7 @@
         "openmp"
       ]
     },
+    "libspng",
     "libwebp",
     "nanobind",
     "pybind11",
@@ -71,12 +72,14 @@
       ]
     },
     "libheif",
+    "libjxl",
     {
       "name": "openimageio",
       "features": [
         "ffmpeg",
         "freetype",
         "gif",
+        "jpegxl",
         "libheif",
         "libraw",
         "opencolorio",
