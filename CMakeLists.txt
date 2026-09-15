@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(OpenUTVDependencies VERSION 26.2)
+project(OpenUTVDependencies VERSION 26.3)
 
 # The vcpkg export or install tree is expected to be in 'exported_deps'
 # On Windows, it's typically 'exported_deps/utv-deps-windows-x64'

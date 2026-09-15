@@ -1,6 +1,6 @@
 {
   "name": "openutv-dependencies",
-  "version-string": "26.2.0",
+  "version-string": "26.3.0",
   "dependencies": [
     "python3",
     "vcpkg-get-python",
