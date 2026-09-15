@@ -70,12 +70,14 @@
         "tools"
       ]
     },
+    "libheif",
     {
       "name": "openimageio",
       "features": [
         "ffmpeg",
         "freetype",
         "gif",
+        "libheif",
         "libraw",
         "opencolorio",
         "opencv",
