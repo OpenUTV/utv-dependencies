@@ -130,6 +130,12 @@ jobs:
           cmake -G "Visual Studio 18 2026" ..
           cpack -G WIX -C Release --debug --verbose
 
+      - name: Show WiX log on failure
+        if: failure()
+        shell: bash
+        run: |
+          find build -name "wix.log" -exec cat {} + || true
+
       - name: Upload to Release
         shell: bash
         env:

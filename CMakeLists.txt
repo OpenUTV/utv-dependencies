@@ -24,6 +24,7 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "OpenUTV Dependencies Bundle")
 if(WIN32)
     set(CPACK_GENERATOR "WIX")
     set(CPACK_WIX_UPGRADE_GUID "D2305530-58FF-4054-94E6-37D35E445EFA")
+    set(CPACK_WIX_LIGHT_EXTRA_FLAGS "-sval")
     
     # Define a custom WIX source file to inject the Environment component
     file(WRITE ${CMAKE_BINARY_DIR}/extra.wxs "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
