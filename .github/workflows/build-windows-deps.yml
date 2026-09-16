@@ -121,6 +121,9 @@ jobs:
             --python-version 3.14 \
             --target "$DEST_SITE_PACKAGES" \
             PySide6==6.11.2
+          # Prune objects-* directories and .obj files that exceed Windows MAX_PATH (260 chars)
+          find "$DEST_SITE_PACKAGES" -type d -name "objects-*" -prune -exec rm -rf {} + || true
+          find "$DEST_SITE_PACKAGES" -name "*.obj" -delete || true
 
       - name: Package MSI Installer (CPack WiX)
         shell: bash
