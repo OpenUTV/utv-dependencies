@@ -21,6 +21,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v6
 
+      - name: Enable Windows Long Path Support
+        run: |
+          Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1
+          git config --system core.longpaths true
+
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
         with:
@@ -121,23 +126,49 @@ jobs:
             --python-version 3.14 \
             --target "$DEST_SITE_PACKAGES" \
             PySide6==6.11.2
-          # Prune objects-* directories and .obj files that exceed Windows MAX_PATH (260 chars)
-          find "$DEST_SITE_PACKAGES" -type d -name "objects-*" -prune -exec rm -rf {} + || true
-          find "$DEST_SITE_PACKAGES" -name "*.obj" -delete || true
+
+      - name: Configure WiX Long Path Support
+        run: |
+          $wixDir = "C:\Program Files (x86)\WiX Toolset v3.14\bin"
+          if (Test-Path $wixDir) {
+            @("candle.exe", "light.exe", "heat.exe", "lit.exe", "pyro.exe", "torch.exe") | ForEach-Object {
+              $configFile = Join-Path $wixDir "$_.config"
+              if (Test-Path $configFile) {
+                [xml]$config = Get-Content $configFile
+              } else {
+                [xml]$config = "<configuration><runtime/></configuration>"
+              }
+              if (-not $config.configuration) {
+                $config.AppendChild($config.CreateElement("configuration")) | Out-Null
+              }
+              if (-not $config.configuration.runtime) {
+                $config.configuration.AppendChild($config.CreateElement("runtime")) | Out-Null
+              }
+              $override = $config.configuration.runtime.AppContextSwitchOverrides
+              if (-not $override) {
+                $override = $config.CreateElement("AppContextSwitchOverrides")
+                $config.configuration.runtime.AppendChild($override) | Out-Null
+              }
+              $override.SetAttribute("value", "Switch.System.IO.UseLegacyPathHandling=false;Switch.System.IO.BlockLongPaths=false")
+              $config.Save($configFile)
+            }
+          }
 
       - name: Package MSI Installer (CPack WiX)
         shell: bash
         run: |
-          mkdir build
-          cd build
-          cmake -G "Visual Studio 18 2026" ..
+          mkdir -p C:/b
+          cd C:/b
+          cmake -G "Visual Studio 18 2026" "$GITHUB_WORKSPACE"
           cpack -G WIX -C Release --debug --verbose
+          mkdir -p "$GITHUB_WORKSPACE/build"
+          cp C:/b/OpenUTVDeps-*.msi "$GITHUB_WORKSPACE/build/" || cp C:/b/_CPack_Packages/win64/WIX/OpenUTVDeps-*.msi "$GITHUB_WORKSPACE/build/"
 
       - name: Show WiX log on failure
         if: failure()
         shell: bash
         run: |
-          find build -name "wix.log" -exec cat {} + || true
+          find C:/b build -name "wix.log" -exec cat {} + 2>/dev/null || true
 
       - name: Upload to Release
         shell: bash
