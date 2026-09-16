@@ -143,6 +143,21 @@ jobs:
           # Move the installed tree to the location expected by CMakeLists.txt
           mv "${{ runner.workspace }}/vcpkg/installed/x64-linux" "exported_deps/utv-deps-linux-x64"
 
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: false
+
+      - name: Install PySide6 into Bundled Python
+        run: |
+          DEST_SITE_PACKAGES="exported_deps/utv-deps-linux-x64/lib/python3.14/site-packages"
+          mkdir -p "$DEST_SITE_PACKAGES"
+          uv pip install \
+            --python-platform x86_64-manylinux_2_34 \
+            --python-version 3.14 \
+            --target "$DEST_SITE_PACKAGES" \
+            PySide6==6.11.2
+
       - name: Package DEB Installer (CPack)
         run: |
           mkdir build
