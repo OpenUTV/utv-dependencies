@@ -71,7 +71,14 @@
         "tools"
       ]
     },
-    "libheif",
+    {
+      "name": "libheif",
+      "default-features": false,
+      "features": [
+        "aom",
+        "header-compression"
+      ]
+    },
     "libjxl",
     {
       "name": "openimageio",
