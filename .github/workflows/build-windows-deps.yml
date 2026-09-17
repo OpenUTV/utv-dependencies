@@ -111,12 +111,26 @@ jobs:
           # Move the installed tree to the location expected by CMakeLists.txt
           mv "${{ runner.workspace }}/vcpkg/installed/x64-windows" "exported_deps/utv-deps-windows-x64"
 
+          # 1. Strip debug symbol files (.pdb) from bin/ to reduce bloat (~760 MB)
+          echo "Stripping .pdb debug symbols..."
+          find exported_deps/utv-deps-windows-x64 -name "*.pdb" -type f -delete
+
+          # 2. Remove Windows SDK import libraries not authorized for third-party distribution
+          echo "Removing unauthorized Windows SDK import libraries..."
+          find exported_deps/utv-deps-windows-x64 -iname "OpenGL32.Lib" -type f -delete
+          find exported_deps/utv-deps-windows-x64 -iname "GlU32.Lib" -type f -delete
+
+          # 3. Remove OpenSSL extraneous nested Program Files / Common Files directory
+          echo "Removing extraneous nested OpenSSL directory..."
+          rm -rf "exported_deps/utv-deps-windows-x64/Program Files"
+          rm -rf "exported_deps/utv-deps-windows-x64/Common Files"
+
       - name: Setup uv
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: false
 
-      - name: Install PySide6 into Bundled Python
+      - name: Install PySide6 Essentials into Bundled Python
         shell: bash
         run: |
           DEST_SITE_PACKAGES="exported_deps/utv-deps-windows-x64/tools/python3/Lib/site-packages"
@@ -125,7 +139,7 @@ jobs:
             --python-platform windows \
             --python-version 3.14 \
             --target "$DEST_SITE_PACKAGES" \
-            PySide6==6.11.2
+            PySide6-Essentials==6.11.2
 
       - name: Configure WiX Long Path Support
         run: |
@@ -164,6 +178,14 @@ jobs:
           mkdir -p "$GITHUB_WORKSPACE/build"
           cp C:/b/OpenUTVDeps-*.msi "$GITHUB_WORKSPACE/build/" || cp C:/b/_CPack_Packages/win64/WIX/OpenUTVDeps-*.msi "$GITHUB_WORKSPACE/build/"
 
+      - name: Package Source Code Archive for LGPL Compliance
+        shell: bash
+        run: |
+          CMAKE_VER=$(grep -i "project(OpenUTVDependencies VERSION" CMakeLists.txt | sed -E 's/.*VERSION ([0-9\.]+).*/\1/')
+          mkdir -p "$GITHUB_WORKSPACE/build"
+          echo "Packaging corresponding source code from vcpkg downloads..."
+          tar -czf "$GITHUB_WORKSPACE/build/openutv-deps-sources-${CMAKE_VER}.tar.gz" -C "${{ runner.workspace }}/vcpkg/downloads" .
+
       - name: Show WiX log on failure
         if: failure()
         shell: bash
@@ -177,4 +199,12 @@ jobs:
         run: |
           CMAKE_VER=$(grep -i "project(OpenUTVDependencies VERSION" CMakeLists.txt | sed -E 's/.*VERSION ([0-9\.]+).*/\1/')
           VERSION="v${CMAKE_VER}"
-          gh release create $VERSION build/OpenUTVDeps-${CMAKE_VER}-win64.msi -t "Windows x64 Dependencies $VERSION" -n "Source-driven dependency build ($VERSION)" || gh release upload $VERSION build/OpenUTVDeps-${CMAKE_VER}-win64.msi --clobber
+          gh release create $VERSION \
+            build/OpenUTVDeps-${CMAKE_VER}-win64.msi \
+            build/openutv-deps-sources-${CMAKE_VER}.tar.gz \
+            -t "Windows x64 Dependencies $VERSION" \
+            -n "Source-driven dependency build ($VERSION)" \
+            || gh release upload $VERSION \
+              build/OpenUTVDeps-${CMAKE_VER}-win64.msi \
+              build/openutv-deps-sources-${CMAKE_VER}.tar.gz \
+              --clobber

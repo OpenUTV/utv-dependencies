@@ -157,7 +157,7 @@ jobs:
           # Move the installed tree to the location expected by CMakeLists.txt
           mv "$VCPKG_ROOT/installed/x64-linux" "exported_deps/utv-deps-linux-x64"
 
-      - name: Install PySide6 into Bundled Python
+      - name: Install PySide6 Essentials into Bundled Python
         run: |
           curl -fsSL https://astral.sh/uv/install.sh | sh
           DEST_SITE_PACKAGES="exported_deps/utv-deps-linux-x64/lib/python3.14/site-packages"
@@ -166,7 +166,7 @@ jobs:
             --python-platform x86_64-manylinux_2_34 \
             --python-version 3.14 \
             --target "$DEST_SITE_PACKAGES" \
-            PySide6==6.11.2
+            PySide6-Essentials==6.11.2
 
       - name: Package RPM Installer (CPack)
         run: |

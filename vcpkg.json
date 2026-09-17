@@ -75,8 +75,7 @@
       "name": "libheif",
       "default-features": false,
       "features": [
-        "aom",
-        "header-compression"
+        "aom"
       ]
     },
     "libjxl",
