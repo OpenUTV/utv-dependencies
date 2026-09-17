@@ -1,0 +1,14 @@
+OpenUTV Dependencies
+Copyright (C) 2026 Makai Systems and OpenUTV Contributors. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0
+
+--------------------------------------------------------------------------------
+
+IMPORTANT: This repository contains build configurations, scripts, and port overlays
+for building third-party open-source libraries. Bundled binaries built or distributed
+from this repository contain third-party components that are licensed under their
+respective upstream open-source licenses (including LGPL, BSD, MIT, and others).
+
+For complete details on bundled components, LGPL compliance, and our written offer
+for corresponding source code, please see LEGAL.md and the license files installed
+under share/<package>/copyright.

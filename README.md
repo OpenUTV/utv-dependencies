@@ -37,7 +37,7 @@ If you run a GitHub Action without incrementing the version, it will overwrite (
 
 ## License & Legal
 
-The build scripts, CMake definitions, and CI pipelines in this repository are licensed under the [MIT License](LICENSE).
+The build scripts, CMake definitions, portfiles, and configurations in this repository are licensed under the [Apache-2.0 License](LICENSE).
 
-This project bundles third-party dependencies under various open-source licenses. Please refer to [LEGAL.md](LEGAL.md) for important information regarding LGPL compliance and our written offer for source code.
+This project bundles third-party dependencies under various open-source licenses. Please refer to [LEGAL.md](LEGAL.md) and [NOTICE.txt](NOTICE.txt) for important information regarding LGPL compliance and our written offer for source code.
 
