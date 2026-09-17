@@ -125,6 +125,12 @@ jobs:
           rm -rf "exported_deps/utv-deps-windows-x64/Program Files"
           rm -rf "exported_deps/utv-deps-windows-x64/Common Files"
 
+          # 4. Ensure python3.dll is installed for abi3 extension compatibility
+          if [ ! -f "exported_deps/utv-deps-windows-x64/tools/python3/python3.dll" ]; then
+            find "${{ runner.workspace }}" -name "python3.dll" -exec cp {} "exported_deps/utv-deps-windows-x64/tools/python3/" \; -quit || true
+            find "${{ runner.workspace }}" -name "python3.dll" -exec cp {} "exported_deps/utv-deps-windows-x64/bin/" \; -quit || true
+          fi
+
       - name: Setup uv
         uses: astral-sh/setup-uv@v5
         with:
