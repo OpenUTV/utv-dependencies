@@ -59,7 +59,10 @@
     "libheif": {
       "description": "Enable heif support for openimageio",
       "dependencies": [
-        "libheif"
+        {
+          "name": "libheif",
+          "default-features": false
+        }
       ]
     },
     "libraw": {
