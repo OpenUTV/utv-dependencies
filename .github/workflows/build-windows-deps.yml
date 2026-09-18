@@ -131,12 +131,20 @@ jobs:
             find "${{ runner.workspace }}" -name "python3.dll" -exec cp {} "exported_deps/utv-deps-windows-x64/bin/" \; -quit || true
           fi
 
+          # 5. Copy MSVC CRT runtime DLLs into bin and tools/python3
+          CRT_DIR=$(find "/c/Program Files/Microsoft Visual Studio" -name "vcruntime140.dll" 2>/dev/null | grep -i x64 | head -n 1 | xargs dirname)
+          if [ -n "$CRT_DIR" ]; then
+            echo "Deploying CRT from $CRT_DIR..."
+            cp "$CRT_DIR"/*.dll "exported_deps/utv-deps-windows-x64/bin/" || true
+            cp "$CRT_DIR"/*.dll "exported_deps/utv-deps-windows-x64/tools/python3/" || true
+          fi
+
       - name: Setup uv
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: false
 
-      - name: Install PySide6 Essentials into Bundled Python
+      - name: Install PySide6 into Bundled Python
         shell: bash
         run: |
           DEST_SITE_PACKAGES="exported_deps/utv-deps-windows-x64/tools/python3/Lib/site-packages"
@@ -145,7 +153,7 @@ jobs:
             --python-platform windows \
             --python-version 3.14 \
             --target "$DEST_SITE_PACKAGES" \
-            PySide6-Essentials==6.11.2
+            PySide6==6.11.2
 
       - name: Configure WiX Long Path Support
         run: |
@@ -190,7 +198,7 @@ jobs:
           CMAKE_VER=$(grep -i "project(OpenUTVDependencies VERSION" CMakeLists.txt | sed -E 's/.*VERSION ([0-9\.]+).*/\1/')
           mkdir -p "$GITHUB_WORKSPACE/build"
           echo "Packaging corresponding source code from vcpkg downloads..."
-          tar -czf "$GITHUB_WORKSPACE/build/openutv-deps-sources-${CMAKE_VER}.tar.gz" -C "${{ runner.workspace }}/vcpkg/downloads" .
+          tar --force-local -czf "$GITHUB_WORKSPACE/build/openutv-deps-sources-${CMAKE_VER}.tar.gz" -C "${{ runner.workspace }}/vcpkg/downloads" .
 
       - name: Show WiX log on failure
         if: failure()
