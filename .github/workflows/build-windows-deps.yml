@@ -144,7 +144,7 @@ jobs:
         with:
           enable-cache: false
 
-      - name: Install PySide6 into Bundled Python
+      - name: Install PySide6 and opencolorio into Bundled Python
         shell: bash
         run: |
           DEST_SITE_PACKAGES="exported_deps/utv-deps-windows-x64/tools/python3/Lib/site-packages"
@@ -153,7 +153,9 @@ jobs:
             --python-platform windows \
             --python-version 3.14 \
             --target "$DEST_SITE_PACKAGES" \
-            PySide6==6.11.2
+            PySide6==6.11.2 \
+            opencolorio==2.5.2
+
 
       - name: Configure WiX Long Path Support
         run: |
