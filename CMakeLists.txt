@@ -26,14 +26,15 @@ if(WIN32)
     set(CPACK_WIX_UPGRADE_GUID "D2305530-58FF-4054-94E6-37D35E445EFA")
     set(CPACK_WIX_LIGHT_EXTRA_FLAGS "-sval")
     
-    # Define a custom WIX source file to inject the Environment component
+    # OPENUTV_DEPS_ROOT names the install for build scripts. The bin directory is deliberately NOT added to PATH: the OpenUTV launchers find
+    # this package (Installed Apps entry, Program Files) and set PATH for their own processes, and on the system PATH our Qt, Python and FFmpeg
+    # DLLs would be picked up by unrelated programs. Upgrading from an MSI that added it removes the entry (Permanent="no").
     file(WRITE ${CMAKE_BINARY_DIR}/extra.wxs "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <Wix xmlns=\"http://schemas.microsoft.com/wix/2006/wi\">
     <Fragment>
         <DirectoryRef Id=\"INSTALL_ROOT\">
-            <Component Id=\"EnvVarComponent\" Guid=\"B4E63C47-D611-4770-9856-F1439F68B610\">
+            <Component Id=\"EnvVarComponent\" Guid=\"6BA56BAE-0226-4E60-8178-BE8EB03A5FFC\">
                 <Environment Id=\"UpdateOpenUTVDepsRoot\" Action=\"set\" Name=\"OPENUTV_DEPS_ROOT\" Value=\"[INSTALL_ROOT]\" System=\"yes\" Permanent=\"no\" />
-                <Environment Id=\"UpdatePath\" Action=\"set\" Name=\"PATH\" Value=\"[INSTALL_ROOT]bin\" Part=\"last\" System=\"yes\" Permanent=\"no\" />
             </Component>
         </DirectoryRef>
     </Fragment>
