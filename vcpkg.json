@@ -1,6 +1,6 @@
 {
   "name": "openutv-dependencies",
-  "version-string": "26.5.0",
+  "version-string": "26.6.0",
   "dependencies": [
     "python3",
     "vcpkg-get-python",
@@ -12,15 +12,10 @@
     {
       "name": "ffmpeg",
       "features": [
+        "all",
         "ffmpeg",
-        "ffprobe",
         "ffplay",
-        "avcodec",
-        "avformat",
-        "avdevice",
-        "avfilter",
-        "swresample",
-        "swscale"
+        "ffprobe"
       ]
     },
     {
